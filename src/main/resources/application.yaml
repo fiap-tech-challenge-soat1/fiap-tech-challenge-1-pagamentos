@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: pagamentos-app
+  cloud:
+    gcp:
+      firestore:
+        enabled: true
+        project-id: fiap-tech-challenge-403000
+        database-id: pagamentos-db

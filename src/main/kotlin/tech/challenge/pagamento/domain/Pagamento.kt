@@ -1,13 +1,15 @@
 package tech.challenge.pagamento.domain
 
-import org.springframework.data.annotation.Id
+import com.google.cloud.firestore.annotation.DocumentId
+import com.google.cloud.spring.data.firestore.Document
 
-class Pagamento(
-    @Id
-    var id: String? = null,
-    var pedidoId: Long,
-    var status: PagamentoStatus
-) {
+@Document(collectionName = "pagamentos")
+class Pagamento {
+
+    @DocumentId
+    var id: String? = null
+    var pedidoId: Long? = null
+    var status: PagamentoStatus? = null
 
     fun toPagamentoDto(): PagamentoDto {
         return PagamentoDto(
@@ -19,10 +21,10 @@ class Pagamento(
 
     companion object {
         fun createFrom(novoPagamentoRequestDto: NovoPagamentoRequestDto): Pagamento {
-            return Pagamento(
-                pedidoId = novoPagamentoRequestDto.pedido,
-                status = PagamentoStatus.PENDENTE
-            )
+            return Pagamento().also {
+                it.pedidoId = novoPagamentoRequestDto.pedido
+                it.status = PagamentoStatus.PENDENTE
+            }
         }
     }
 
