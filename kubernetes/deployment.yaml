@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pagamento-app
+  labels:
+    app: pagamento-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pagamento-app
+  template:
+    metadata:
+      labels:
+        app: pagamento-app
+    spec:
+      containers:
+        - name: pagamento-app
+          image: pmoon1993/pagamento:2.3
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SPRING_DATA_MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: pagamento-mongodb-pagamento-pagamento
+                  key: connectionString.standardSrv
