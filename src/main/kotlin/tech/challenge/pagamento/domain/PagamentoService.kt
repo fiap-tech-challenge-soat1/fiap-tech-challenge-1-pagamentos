@@ -27,7 +27,7 @@ class PagamentoService {
             pagamentoRepository.save(it).toPagamentoDto()
         } ?: throw NotFoundException("Não foi encontrado pagamento pendente para o pedido")
 
-        //TODO notificar serviço de pedidos
+        //TODO notificar serviço de pedido
     }
 
     fun consultarStatusPagamento(pedido: Long): PagamentoDto {
