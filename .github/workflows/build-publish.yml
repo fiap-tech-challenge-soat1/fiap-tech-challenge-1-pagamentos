@@ -17,6 +17,15 @@ jobs:
       - name: Compute revision
         id: revision
         run: echo "sha_short=v$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Setup java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'temurin'
+
+      - name: Build and Test
+        run: mvn package -DskipTests
   
       - name: Setup Docker
         uses: docker/setup-buildx-action@v1
