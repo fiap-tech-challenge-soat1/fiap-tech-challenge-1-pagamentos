@@ -17,7 +17,7 @@ import tech.challenge.pagamento.domain.pagamento.entidade.Pagamento
 import tech.challenge.pagamento.domain.pagamento.entidade.PagamentoStatus
 
 
-class PagamentoIT: SpringIntegrationTest() {
+class PagamentoIntegrationTest: SpringIntegrationTest() {
 
     @Autowired
     private lateinit var mockMvc: MockMvc

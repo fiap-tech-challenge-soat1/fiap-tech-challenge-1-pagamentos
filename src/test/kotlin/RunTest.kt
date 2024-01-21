@@ -3,5 +3,7 @@ import io.cucumber.junit.CucumberOptions
 import org.junit.runner.RunWith
 
 @RunWith(Cucumber::class)
-@CucumberOptions(features = ["src/test/resources"])
-class CucumberIntegrationTest: SpringIntegrationTest()
+@CucumberOptions(
+    features = ["src/test/resources/features"]
+)
+class RunTest: SpringIntegrationTest()
