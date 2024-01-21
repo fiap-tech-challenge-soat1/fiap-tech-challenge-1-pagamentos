@@ -1,4 +1,4 @@
-package tech.challenge.pagamento.domain
+package tech.challenge.pagamento.externals.api.pagamento
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
@@ -7,13 +7,16 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import tech.challenge.pagamento.domain.pagamento.IPagamentoService
+import tech.challenge.pagamento.domain.pagamento.dto.NovoPagamentoRequestDto
+import tech.challenge.pagamento.domain.pagamento.dto.PagamentoDto
 
 @RestController
 @RequestMapping("/pagamentos")
 class PagamentoController {
 
     @Autowired
-    lateinit var pagamentoService: PagamentoService
+    lateinit var pagamentoService: IPagamentoService
 
     @PostMapping
     fun processarPagamento(@RequestBody novoPagamentoRequestDto: NovoPagamentoRequestDto): PagamentoDto {
@@ -24,7 +27,4 @@ class PagamentoController {
     fun consultarStatusPagamento(@PathVariable("pedido") pedido: Long): PagamentoDto {
         return pagamentoService.consultarStatusPagamento(pedido)
     }
-
-
-
 }

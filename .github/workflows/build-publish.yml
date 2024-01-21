@@ -25,10 +25,13 @@ jobs:
           distribution: 'temurin'
 
       - name: Build and Test
-        run: mvn package -DskipTests
+        run: mvn package
   
       - name: Setup Docker
         uses: docker/setup-buildx-action@v1
+
+      - name: Code coverage
+        run: mvn sonar:sonar -Dsonar.token=${{ secrets.SONAR_TOKEN }}
   
       - name: Build Docker Image
         run: docker build -t pagamentos-service-tech-challenge:${{ steps.revision.outputs.sha_short }} .

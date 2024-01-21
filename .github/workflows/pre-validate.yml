@@ -19,6 +19,9 @@ jobs:
 
       - name: Build and Test
         run: mvn verify
+
+      - name: Code coverage
+        run: mvn sonar:sonar -Dsonar.token=${{ secrets.SONAR_TOKEN }}
   
       - name: Setup Docker
         uses: docker/setup-buildx-action@v1
