@@ -1,9 +1,5 @@
 spring:
   cloud:
     gcp:
-      logging:
-        enabled: false
-      trace:
-        enabled: false
       firestore:
         enabled: false
