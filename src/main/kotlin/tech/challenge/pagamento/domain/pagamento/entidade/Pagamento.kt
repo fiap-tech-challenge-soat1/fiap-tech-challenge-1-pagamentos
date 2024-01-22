@@ -1,7 +1,9 @@
-package tech.challenge.pagamento.domain
+package tech.challenge.pagamento.domain.pagamento.entidade
 
 import com.google.cloud.firestore.annotation.DocumentId
 import com.google.cloud.spring.data.firestore.Document
+import tech.challenge.pagamento.domain.pagamento.dto.NovoPagamentoRequestDto
+import tech.challenge.pagamento.domain.pagamento.dto.PagamentoDto
 
 @Document(collectionName = "pagamentos")
 class Pagamento {

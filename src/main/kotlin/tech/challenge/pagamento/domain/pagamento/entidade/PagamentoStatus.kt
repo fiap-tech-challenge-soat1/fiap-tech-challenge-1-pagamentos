@@ -1,4 +1,4 @@
-package tech.challenge.pagamento.domain
+package tech.challenge.pagamento.domain.pagamento.entidade
 
 enum class PagamentoStatus {
     PENDENTE,
