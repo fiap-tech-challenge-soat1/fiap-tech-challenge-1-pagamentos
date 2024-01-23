@@ -43,9 +43,6 @@ class PagamentoService: IPagamentoService {
     }
 
     override fun consultarStatusPagamento(pedido: Long): PagamentoDto {
-        pedidoResource.listarClientes()?.run {
-            println(this)
-        }
         return pagamentoRepository.findByPedidoId(pedido).block()?.toPagamentoDto() ?: throw NotFoundException("Não foi encontrado pagamento para o pedido")
     }
 }
