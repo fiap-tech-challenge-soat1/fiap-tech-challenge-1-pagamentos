@@ -12,7 +12,7 @@ import tech.challenge.pagamento.domain.pagamento.dto.NovoPagamentoRequestDto
 import tech.challenge.pagamento.domain.pagamento.dto.PagamentoDto
 
 @RestController
-@RequestMapping("/pagamentos")
+@RequestMapping("/")
 class PagamentoController {
 
     @Autowired

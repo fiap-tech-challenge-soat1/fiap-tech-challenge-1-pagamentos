@@ -38,7 +38,7 @@ class PagamentoServiceTest {
 
         val exception = assertThrows<BusinessException> {
             pagamentoService.processarPagamento(NovoPagamentoRequestDto(
-                pedido = 172654
+                pedidoId = 172654
             ))
         }
 
