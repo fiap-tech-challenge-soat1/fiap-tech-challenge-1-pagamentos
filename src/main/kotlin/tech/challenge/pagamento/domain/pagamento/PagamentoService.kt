@@ -20,7 +20,7 @@ class PagamentoService: IPagamentoService {
     lateinit var pedidoResource: IPedidoResource
 
     override fun processarPagamento(novoPagamentoRequestDto: NovoPagamentoRequestDto): PagamentoDto {
-        pagamentoRepository.findByPedidoId(novoPagamentoRequestDto.pedido).block()?.run {
+        pagamentoRepository.findByPedidoId(novoPagamentoRequestDto.pedidoId).block()?.run {
             throw BusinessException("Pedido já possui pagamento realizado ou em processamento")
         }
 

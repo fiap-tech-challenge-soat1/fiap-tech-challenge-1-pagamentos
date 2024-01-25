@@ -24,7 +24,7 @@ class Pagamento {
     companion object {
         fun createFrom(novoPagamentoRequestDto: NovoPagamentoRequestDto): Pagamento {
             return Pagamento().also {
-                it.pedidoId = novoPagamentoRequestDto.pedido
+                it.pedidoId = novoPagamentoRequestDto.pedidoId
                 it.status = PagamentoStatus.PENDENTE
             }
         }
