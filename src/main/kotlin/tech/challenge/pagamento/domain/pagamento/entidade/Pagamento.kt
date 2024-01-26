@@ -1,5 +1,6 @@
 package tech.challenge.pagamento.domain.pagamento.entidade
 
+import com.google.cloud.Timestamp
 import com.google.cloud.firestore.annotation.DocumentId
 import com.google.cloud.spring.data.firestore.Document
 import tech.challenge.pagamento.domain.pagamento.dto.NovoPagamentoRequestDto
@@ -12,6 +13,7 @@ class Pagamento {
     var id: String? = null
     var pedidoId: Long? = null
     var status: PagamentoStatus? = null
+    var createdAt = Timestamp.now()
 
     fun toPagamentoDto(): PagamentoDto {
         return PagamentoDto(

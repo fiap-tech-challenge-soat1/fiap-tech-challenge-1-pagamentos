@@ -20,7 +20,13 @@ class PagamentoService: IPagamentoService {
     lateinit var pedidoResource: IPedidoResource
 
     override fun processarPagamento(novoPagamentoRequestDto: NovoPagamentoRequestDto): PagamentoDto {
-        pagamentoRepository.findByPedidoId(novoPagamentoRequestDto.pedidoId).block()?.run {
+        pagamentoRepository.findByPedidoIdAndStatusIn(
+            pedidoId = novoPagamentoRequestDto.pedidoId,
+            status = listOf(
+                PagamentoStatus.SUCESSO,
+                PagamentoStatus.PENDENTE
+            )
+        ).block()?.run {
             throw BusinessException("Pedido já possui pagamento realizado ou em processamento")
         }
 
@@ -30,11 +36,12 @@ class PagamentoService: IPagamentoService {
     }
 
     override fun confirmarPagamento(pedido: Long, status: PagamentoStatus): PagamentoDto {
-        val pagamento  = pagamentoRepository.findByPedidoId(pedido).block() ?: throw NotFoundException("Não foi encontrado pagamento pendente para o pedido")
-
-        if(pagamento.status != PagamentoStatus.PENDENTE) {
-            throw BusinessException("O pagamento desse pedido não esta mais pendente")
-        }
+        val pagamento = pagamentoRepository.findByPedidoIdAndStatusIn(
+            pedidoId = pedido,
+            status = listOf(
+                PagamentoStatus.PENDENTE
+            )
+        ).block() ?: throw NotFoundException("Não foi encontrado pagamento pendente para o pedido")
 
         pagamento.status = status
         return pagamentoRepository.save(pagamento).block()!!.toPagamentoDto().also {
@@ -43,6 +50,12 @@ class PagamentoService: IPagamentoService {
     }
 
     override fun consultarStatusPagamento(pedido: Long): PagamentoDto {
-        return pagamentoRepository.findByPedidoId(pedido).block()?.toPagamentoDto() ?: throw NotFoundException("Não foi encontrado pagamento para o pedido")
+        val pagamentoCorrente = pagamentoRepository.findAllByPedidoId(pedido).collectList().block()?.takeIf { it.isNotEmpty() }?.maxBy { it.createdAt }
+
+        if(pagamentoCorrente == null) {
+            throw NotFoundException("Não foi encontrado pagamento para o pedido")
+        }
+
+        return pagamentoCorrente.toPagamentoDto()
     }
 }
