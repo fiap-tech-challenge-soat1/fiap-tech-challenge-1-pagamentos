@@ -4,6 +4,7 @@ import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.*
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import tech.challenge.pagamento.domain.exception.BusinessException
 import tech.challenge.pagamento.domain.exception.NotFoundException
@@ -34,7 +35,13 @@ class PagamentoServiceTest {
                 }
             )
         }
-        `when`(pagamentoRepository.findByPedidoId(172654)).thenReturn(pagamentoEntity)
+        `when`(pagamentoRepository.findByPedidoIdAndStatusIn(
+            pedidoId = 172654,
+            status = listOf(
+                PagamentoStatus.SUCESSO,
+                PagamentoStatus.PENDENTE
+            )
+        )).thenReturn(pagamentoEntity)
 
         val exception = assertThrows<BusinessException> {
             pagamentoService.processarPagamento(NovoPagamentoRequestDto(
@@ -50,33 +57,18 @@ class PagamentoServiceTest {
         val pagamentoEntity: Mono<Pagamento> = mock<Mono<Pagamento>?>().also {
             `when`(it.block()).thenReturn(null)
         }
-        `when`(pagamentoRepository.findByPedidoId(172654)).thenReturn(pagamentoEntity)
+        `when`(pagamentoRepository.findByPedidoIdAndStatusIn(
+            pedidoId = 172654,
+            status = listOf(
+                PagamentoStatus.PENDENTE
+            )
+        )).thenReturn(pagamentoEntity)
 
         val exception = assertThrows<NotFoundException> {
             pagamentoService.confirmarPagamento(172654, PagamentoStatus.SUCESSO)
         }
 
         assertEquals("Não foi encontrado pagamento pendente para o pedido", exception.message)
-    }
-
-    @Test
-    fun quandoPagamentoNaoEstaPendenteAoConfirmarPagamentoDeveLancarException() {
-        val pagamentoEntity: Mono<Pagamento> = mock<Mono<Pagamento>?>().also {
-            `when`(it.block()).thenReturn(
-                Pagamento().also { p ->
-                    p.id = "SvfAMoKJ65aPvl0oP2we"
-                    p.pedidoId = 172654
-                    p.status = PagamentoStatus.SUCESSO
-                }
-            )
-        }
-        `when`(pagamentoRepository.findByPedidoId(172654)).thenReturn(pagamentoEntity)
-
-        val exception = assertThrows<BusinessException> {
-            pagamentoService.confirmarPagamento(172654, PagamentoStatus.SUCESSO)
-        }
-
-        assertEquals("O pagamento desse pedido não esta mais pendente", exception.message)
     }
 
     @Test
@@ -91,7 +83,12 @@ class PagamentoServiceTest {
                 pagamentoEntity
             )
         }
-        `when`(pagamentoRepository.findByPedidoId(172654)).thenReturn(pagamentoEntityMono)
+        `when`(pagamentoRepository.findByPedidoIdAndStatusIn(
+            pedidoId = 172654,
+            status = listOf(
+                PagamentoStatus.PENDENTE
+            )
+        )).thenReturn(pagamentoEntityMono)
         `when`(pagamentoRepository.save(pagamentoEntity)).thenReturn(pagamentoEntityMono)
 
         val pagamentoDto = pagamentoService.confirmarPagamento(172654, PagamentoStatus.SUCESSO)
@@ -105,10 +102,14 @@ class PagamentoServiceTest {
 
     @Test
     fun quandoPagamentoNaoExisteAoConsultarStatusDeveLancarNotFoundException() {
-        val pagamentoEntity: Mono<Pagamento> = mock<Mono<Pagamento>?>().also {
-            `when`(it.block()).thenReturn(null)
+        val fluxEmpty: Flux<Pagamento> = mock<Flux<Pagamento>>().also {
+            val monoList: Mono<List<Pagamento>> = mock<Mono<List<Pagamento>>?>().also { mono ->
+                `when`(mono.block()).thenReturn(emptyList())
+            }
+            `when`(it.collectList()).thenReturn(monoList)
         }
-        `when`(pagamentoRepository.findByPedidoId(172654)).thenReturn(pagamentoEntity)
+
+        `when`(pagamentoRepository.findAllByPedidoId(172654)).thenReturn(fluxEmpty)
 
         val exception = assertThrows<NotFoundException> {
             pagamentoService.consultarStatusPagamento(172654)

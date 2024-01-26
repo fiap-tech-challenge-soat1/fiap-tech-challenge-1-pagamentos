@@ -12,6 +12,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import tech.challenge.pagamento.domain.pagamento.entidade.Pagamento
 import tech.challenge.pagamento.domain.pagamento.entidade.PagamentoStatus
@@ -37,7 +38,13 @@ class PagamentoIntegrationTest: SpringIntegrationTest() {
             })
         }
         `when`(pagamentoRepository.save(any())).thenReturn(pagamentoEntity)
-        `when`(pagamentoRepository.findByPedidoId(172654)).thenReturn(monoEmpty)
+        `when`(pagamentoRepository.findByPedidoIdAndStatusIn(
+            pedidoId = 172654,
+            status = listOf(
+                PagamentoStatus.SUCESSO,
+                PagamentoStatus.PENDENTE
+            )
+        )).thenReturn(monoEmpty)
     }
 
     @When("o cliente chama \\/pagamentos")
@@ -78,7 +85,29 @@ class PagamentoIntegrationTest: SpringIntegrationTest() {
                 p.status = PagamentoStatus.PENDENTE
             })
         }
-        `when`(pagamentoRepository.findByPedidoId(172654)).thenReturn(pagamentoEntity)
+        `when`(pagamentoRepository.findByPedidoIdAndStatusIn(
+            pedidoId = 172654,
+            status = listOf(
+                PagamentoStatus.SUCESSO,
+                PagamentoStatus.PENDENTE
+            )
+        )).thenReturn(pagamentoEntity)
+
+
+        val fluxEmpty: Flux<Pagamento> = mock<Flux<Pagamento>>().also {
+            val monoList: Mono<List<Pagamento>> = mock<Mono<List<Pagamento>>?>().also { mono ->
+                `when`(mono.block()).thenReturn(listOf(
+                    Pagamento().also { p ->
+                        p.id = "SvfAMoKJ65aPvl0oP2we"
+                        p.pedidoId = 172654
+                        p.status = PagamentoStatus.PENDENTE
+                    }
+                ))
+            }
+            `when`(it.collectList()).thenReturn(monoList)
+        }
+
+        `when`(pagamentoRepository.findAllByPedidoId(172654)).thenReturn(fluxEmpty)
     }
 
     @When("o cliente chama o \\/pagamentos\\/pedido\\/\\{pedido}")
