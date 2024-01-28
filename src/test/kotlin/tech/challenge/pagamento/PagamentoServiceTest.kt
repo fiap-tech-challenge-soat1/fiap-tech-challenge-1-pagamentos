@@ -11,6 +11,7 @@ import tech.challenge.pagamento.domain.exception.NotFoundException
 import tech.challenge.pagamento.domain.pagamento.IPagamentoRepository
 import tech.challenge.pagamento.domain.pagamento.PagamentoService
 import tech.challenge.pagamento.domain.pagamento.dto.NovoPagamentoRequestDto
+import tech.challenge.pagamento.domain.pagamento.dto.ResultadoPagamentoDto
 import tech.challenge.pagamento.domain.pagamento.entidade.Pagamento
 import tech.challenge.pagamento.domain.pagamento.entidade.PagamentoStatus
 import tech.challenge.pagamento.domain.pedido.IPedidoResource
@@ -97,7 +98,7 @@ class PagamentoServiceTest {
         assertEquals(172654, pagamentoDto.pedido)
         assertEquals(PagamentoStatus.SUCESSO, pagamentoDto.status)
 
-        verify(pedidoResource).confirmarPagamento(172654, PagamentoStatus.SUCESSO)
+        verify(pedidoResource).confirmarPagamento(172654, ResultadoPagamentoDto(PagamentoStatus.SUCESSO))
     }
 
     @Test
