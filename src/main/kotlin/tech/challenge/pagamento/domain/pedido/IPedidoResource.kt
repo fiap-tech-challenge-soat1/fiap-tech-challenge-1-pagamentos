@@ -3,6 +3,7 @@ package tech.challenge.pagamento.domain.pedido
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import tech.challenge.pagamento.domain.pagamento.entidade.PagamentoStatus
@@ -14,5 +15,5 @@ interface IPedidoResource {
     fun listarClientes(): String?// Teste
 
     @PostMapping("/pedidos/{pedido}/confirmar-pagamento")
-    fun confirmarPagamento(@PathVariable pedido: Long, pagamentoStatus: PagamentoStatus)
+    fun confirmarPagamento(@PathVariable pedido: Long, @RequestBody pagamentoStatus: PagamentoStatus)
 }
