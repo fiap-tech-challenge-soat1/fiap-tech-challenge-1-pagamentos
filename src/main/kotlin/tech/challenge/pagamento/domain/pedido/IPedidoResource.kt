@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
+import tech.challenge.pagamento.domain.pagamento.dto.ResultadoPagamentoDto
 import tech.challenge.pagamento.domain.pagamento.entidade.PagamentoStatus
 
 @FeignClient(value = "pedidos", url = "\${pagamento.feign.pedido.url}")
@@ -15,5 +16,5 @@ interface IPedidoResource {
     fun listarClientes(): String?// Teste
 
     @PostMapping("/pedidos/{pedido}/confirmar-pagamento")
-    fun confirmarPagamento(@PathVariable pedido: Long, @RequestBody pagamentoStatus: PagamentoStatus)
+    fun confirmarPagamento(@PathVariable pedido: Long, @RequestBody input: ResultadoPagamentoDto)
 }
