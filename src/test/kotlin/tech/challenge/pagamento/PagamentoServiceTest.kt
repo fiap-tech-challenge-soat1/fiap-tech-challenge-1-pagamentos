@@ -116,6 +116,6 @@ class PagamentoServiceTest {
             pagamentoService.consultarStatusPagamento(172654)
         }
 
-        assertEquals("Não foi encontrado pagamento para o pedido informado", exception.message)
+        assertEquals("Não foi encontrado pagamento para o pedido", exception.message)
     }
 }
