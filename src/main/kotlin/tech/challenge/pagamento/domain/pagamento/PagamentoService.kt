@@ -54,7 +54,7 @@ class PagamentoService: IPagamentoService {
         val pagamentoCorrente = pagamentoRepository.findAllByPedidoId(pedido).collectList().block()?.takeIf { it.isNotEmpty() }?.maxBy { it.createdAt }
 
         if(pagamentoCorrente == null) {
-            throw NotFoundException("Não foi encontrado pagamento para o pedido")
+            throw NotFoundException("Não foi encontrado pagamento para o pedido informado")
         }
 
         return pagamentoCorrente.toPagamentoDto()
