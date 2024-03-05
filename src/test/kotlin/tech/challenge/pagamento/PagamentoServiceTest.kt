@@ -102,7 +102,10 @@ class PagamentoServiceTest {
         assertEquals(172654, pagamentoDto.pedido)
         assertEquals(PagamentoStatus.SUCESSO, pagamentoDto.status)
 
-        verify(pedidoResource).confirmarPagamento(172654, ResultadoPagamentoDto(PagamentoStatus.SUCESSO))
+        verify(pedidoResource).confirmarPagamento(172654, ResultadoPagamentoDto(
+                pedido = 172654,
+                resultadoPagamento = PagamentoStatus.SUCESSO
+        ))
     }
 
     @Test

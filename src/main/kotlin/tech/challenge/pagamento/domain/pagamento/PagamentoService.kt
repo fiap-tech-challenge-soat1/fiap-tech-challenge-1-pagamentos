@@ -8,6 +8,7 @@ import tech.challenge.pagamento.domain.pagamento.dto.PagamentoDto
 import tech.challenge.pagamento.domain.pagamento.entidade.Pagamento
 import tech.challenge.pagamento.domain.exception.BusinessException
 import tech.challenge.pagamento.domain.exception.NotFoundException
+import tech.challenge.pagamento.domain.pagamento.dto.ResultadoPagamentoDto
 import tech.challenge.pagamento.domain.pagamento.entidade.PagamentoStatus
 import tech.challenge.pagamento.domain.pedido.IPedidoResource
 import tech.challenge.pagamento.externals.api.pagamento.channel.ConfirmarPagamentoChannel
@@ -51,7 +52,10 @@ class PagamentoService: IPagamentoService {
 
         pagamento.status = status
         return pagamentoRepository.save(pagamento).block()!!.toPagamentoDto().also {
-            confirmarPagamentoChannel.confirmarPagamento(it)
+            confirmarPagamentoChannel.confirmarPagamento(ResultadoPagamentoDto(
+                    pedido = it.pedido!!,
+                    resultadoPagamento = status
+            ))
         }
     }
 
