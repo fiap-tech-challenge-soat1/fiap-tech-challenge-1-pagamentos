@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    gcp:
+      project-id: fiap-tech-challenge-store
+      pubsub:
+        emulator-host: localhost:8085
+      firestore:
+        # para teste local usar versão <spring-cloud-gcp.version>4.7.2</spring-cloud-gcp.version>
+        database-id: default
+        host-port: localhost:8090
+        emulator:
+          enabled: true

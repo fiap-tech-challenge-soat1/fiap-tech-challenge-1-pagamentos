@@ -2,10 +2,19 @@ spring:
   application:
     name: pagamentos-app
   cloud:
+    function:
+      definition: confirmarPagamentoSupplier;solicitarPagamentoConsumer;
+    stream:
+      bindings:
+        confirmarPagamentoSupplier-out-0:
+          destination: confirmar-pagamento-topic
+        solicitarPagamentoConsumer-in-0:
+          group: pagamentos-subscription
+          destination: solicitar-pagamento-topic
     gcp:
+      project-id: fiap-tech-challenge-403000
       firestore:
         enabled: true
-        project-id: fiap-tech-challenge-403000
         database-id: pagamentos-db
 pagamento:
   feign:
