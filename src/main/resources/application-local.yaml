@@ -1,14 +1,5 @@
 spring:
   cloud:
-    function:
-      definition: confirmarPagamentoSupplier;solicitarPagamentoConsumer;
-    stream:
-      bindings:
-        confirmarPagamentoSupplier-out-0:
-          destination: confirmar-pagamento-topic
-        solicitarPagamentoConsumer-in-0:
-          group: pagamentos-subscription
-          destination: solicitar-pagamento-topic
     gcp:
       project-id: fiap-tech-challenge-store
       pubsub:

@@ -6,9 +6,12 @@ import org.springframework.stereotype.Component
 import tech.challenge.pagamento.domain.pagamento.IPagamentoService
 import tech.challenge.pagamento.domain.pagamento.dto.NovoPagamentoRequestDto
 import java.util.function.Consumer
+import java.util.logging.Logger
 
 @Component
 class SolicitarPagamentoChannel {
+
+    val logger: Logger = Logger.getLogger(SolicitarPagamentoChannel::class.simpleName)
 
     @Autowired
     lateinit var pagamentoService: IPagamentoService
@@ -16,7 +19,7 @@ class SolicitarPagamentoChannel {
     @Bean
     private fun solicitarPagamentoConsumer(): Consumer<NovoPagamentoRequestDto> {
         return Consumer {
-            println("${it.pedidoId} - ${it.valorTotal}")
+            logger.info("Message received: ${it.pedidoId}")
             pagamentoService.processarPagamento(it)
         }
     }

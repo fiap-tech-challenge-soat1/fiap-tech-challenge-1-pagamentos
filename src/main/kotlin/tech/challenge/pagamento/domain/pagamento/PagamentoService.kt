@@ -2,6 +2,7 @@ package tech.challenge.pagamento.domain.pagamento
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import tech.challenge.pagamento.domain.pagamento.dto.NovoPagamentoRequestDto
 import tech.challenge.pagamento.domain.pagamento.dto.PagamentoDto
 import tech.challenge.pagamento.domain.pagamento.entidade.Pagamento
@@ -23,6 +24,7 @@ class PagamentoService: IPagamentoService {
     @Autowired
     lateinit var confirmarPagamentoChannel: ConfirmarPagamentoChannel
 
+//    @Transactional
     override fun processarPagamento(novoPagamentoRequestDto: NovoPagamentoRequestDto): PagamentoDto {
         pagamentoRepository.findByPedidoIdAndStatusIn(
             pedidoId = novoPagamentoRequestDto.pedidoId,
