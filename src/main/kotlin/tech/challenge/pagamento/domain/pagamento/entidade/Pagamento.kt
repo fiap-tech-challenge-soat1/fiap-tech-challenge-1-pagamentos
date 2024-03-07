@@ -12,8 +12,9 @@ class Pagamento {
     @DocumentId
     var id: String? = null
     var pedidoId: Long? = null
+    var valorTotal: Double? = null
     var status: PagamentoStatus? = null
-    var createdAt = Timestamp.now()
+    var createdAt: Timestamp = Timestamp.now()
 
     fun toPagamentoDto(): PagamentoDto {
         return PagamentoDto(
@@ -28,6 +29,7 @@ class Pagamento {
             return Pagamento().also {
                 it.pedidoId = novoPagamentoRequestDto.pedidoId
                 it.status = PagamentoStatus.PENDENTE
+                it.valorTotal = novoPagamentoRequestDto.valorTotal.toDouble()
             }
         }
     }

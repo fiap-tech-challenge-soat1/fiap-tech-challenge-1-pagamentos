@@ -1,5 +1,6 @@
 spring:
   cloud:
     gcp:
+      project-id: fiap-tech-challenge-store
       firestore:
         enabled: false

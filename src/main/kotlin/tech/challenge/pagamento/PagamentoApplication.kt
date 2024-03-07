@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 
 @SpringBootApplication
 @EnableFeignClients
-@EnableTransactionManagement
 class PagamentoApplication
 
 fun main(args: Array<String>) {

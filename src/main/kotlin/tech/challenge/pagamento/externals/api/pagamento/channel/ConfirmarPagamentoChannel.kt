@@ -1,22 +1,19 @@
 package tech.challenge.pagamento.externals.api.pagamento.channel
 
-import org.springframework.context.annotation.Bean
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cloud.stream.function.StreamBridge
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Sinks
 import tech.challenge.pagamento.domain.pagamento.dto.ResultadoPagamentoDto
-import java.util.function.Supplier
+
+const val BINDING_NAME_CONFIRMAR_PAGAMENTO_TOPIC = "confirmarPagamentoSupplier"
 
 @Component
 class ConfirmarPagamentoChannel: IConfirmarPagamentoChannel {
-    private val sink: Sinks.Many<ResultadoPagamentoDto> = Sinks.many().multicast().onBackpressureBuffer()
 
-    @Bean
-    private fun confirmarPagamentoSupplier(): Supplier<Flux<ResultadoPagamentoDto>> {
-        return Supplier { sink.asFlux() }
-    }
+    @Autowired
+    lateinit var streamBridge: StreamBridge
 
     override fun confirmarPagamento(resultadoPagamentoDto: ResultadoPagamentoDto) {
-        sink.tryEmitNext(resultadoPagamentoDto)
+        streamBridge.send(BINDING_NAME_CONFIRMAR_PAGAMENTO_TOPIC, resultadoPagamentoDto)
     }
 }
