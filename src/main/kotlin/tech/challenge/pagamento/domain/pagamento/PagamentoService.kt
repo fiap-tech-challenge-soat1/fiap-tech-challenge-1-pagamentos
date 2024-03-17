@@ -27,7 +27,7 @@ class PagamentoService: IPagamentoService {
     @Autowired
     lateinit var transactionManager: TransactionManager
 
-    override fun processarPagamento(novoPagamentoRequestDto: NovoPagamentoRequestDto): PagamentoDto {
+    override fun processarPagamento(novoPagamentoRequestDto: NovoPagamentoRequestDto) {
         val transactionOperator = transactionManager.createNewTransactionalOperator()
 
         pagamentoRepository.findByPedidoIdAndStatusIn(
@@ -37,10 +37,11 @@ class PagamentoService: IPagamentoService {
                 PagamentoStatus.PENDENTE
             )
         ).`as`(transactionOperator::transactional).block()?.run {
-            throw BusinessException("Pedido já possui pagamento realizado ou em processamento")
+            acaoDeContornoFalhaAoSolicitarPagamento(novoPagamentoRequestDto.pedidoId)
+            return
         }
 
-        return Pagamento.createFrom(novoPagamentoRequestDto).let { novoPagamento ->
+        Pagamento.createFrom(novoPagamentoRequestDto).let { novoPagamento ->
             pagamentoRepository.save(novoPagamento).doOnNext {
                 solicitarPagamentoAoGateway(it)
             }.map { pagamento ->

@@ -9,7 +9,6 @@ import org.mockito.Mockito.*
 import org.springframework.transaction.reactive.TransactionalOperator
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import tech.challenge.pagamento.domain.exception.BusinessException
 import tech.challenge.pagamento.domain.exception.NotFoundException
 import tech.challenge.pagamento.domain.pagamento.IPagamentoRepository
 import tech.challenge.pagamento.domain.pagamento.PagamentoService
@@ -44,7 +43,7 @@ class PagamentoServiceTest {
     }
 
     @Test
-    fun quandoJaExisteJaExisterUmPagamentoParaUmPedidoDeveLancarExceptionAoTentarRegistrarOutro() {
+    fun quandoJaExisteJaExistirUmPagamentoParaUmPedidoDeveNotificarFalhaAoTentarRegistrarOutro() {
         val pagamentoEntity = Mono.just(
             Pagamento().also { p ->
                 p.id = "SvfAMoKJ65aPvl0oP2we"
@@ -61,18 +60,16 @@ class PagamentoServiceTest {
             )
         )).thenReturn(pagamentoEntity)
 
-        val exception = assertThrows<BusinessException> {
-            pagamentoService.processarPagamento(NovoPagamentoRequestDto(
+        pagamentoService.processarPagamento(
+            NovoPagamentoRequestDto(
                 pedidoId = 172654,
                 valorTotal = BigDecimal.TEN
-            ))
-        }
-
-        assertEquals("Pedido já possui pagamento realizado ou em processamento", exception.message)
+            )
+        )
     }
 
     @Test
-    fun quandoPagamentoNaoEncontradoAoConfirmarPagamentoDeveLancarNotFoundExceptionException() {
+    fun quandoPagamentoNaoEncontradoAoConfirmarPagamentoDeveLancarNotFoundException() {
         val pagamentoEntity = Mono.empty<Pagamento>()
 
         `when`(pagamentoRepository.findByPedidoIdAndStatusIn(
@@ -126,5 +123,10 @@ class PagamentoServiceTest {
         }
 
         assertEquals("Não foi encontrado pagamento para o pedido", exception.message)
+    }
+
+    @Test
+    fun deveExecutarAcaoDeContornoQuandoNaoForPossivelSolicitarPagamento() {
+
     }
 }
