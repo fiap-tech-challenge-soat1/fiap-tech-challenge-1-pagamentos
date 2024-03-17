@@ -3,10 +3,13 @@ spring:
     name: pagamentos-app
   cloud:
     function:
-      definition: confirmarPagamentoSupplier;solicitarPagamentoConsumer;
+      definition: solicitarPagamentoConsumer;
     stream:
+      function:
+        bindings:
+          confirmarPagamentoSupplier-out-0: confirmarPagamentoSupplier
       bindings:
-        confirmarPagamentoSupplier-out-0:
+        confirmarPagamentoSupplier:
           destination: confirmar-pagamento-topic
         solicitarPagamentoConsumer-in-0:
           group: pagamentos-subscription

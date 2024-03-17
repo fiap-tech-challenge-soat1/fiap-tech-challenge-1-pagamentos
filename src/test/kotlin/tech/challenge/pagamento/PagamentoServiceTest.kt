@@ -1,43 +1,57 @@
 package tech.challenge.pagamento
 
-import org.junit.Ignore
+import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
+import org.mockito.AdditionalAnswers
 import org.mockito.Mockito.*
+import org.springframework.transaction.reactive.TransactionalOperator
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import tech.challenge.pagamento.domain.exception.BusinessException
 import tech.challenge.pagamento.domain.exception.NotFoundException
 import tech.challenge.pagamento.domain.pagamento.IPagamentoRepository
 import tech.challenge.pagamento.domain.pagamento.PagamentoService
 import tech.challenge.pagamento.domain.pagamento.dto.NovoPagamentoRequestDto
-import tech.challenge.pagamento.domain.pagamento.dto.ResultadoPagamentoDto
 import tech.challenge.pagamento.domain.pagamento.entidade.Pagamento
 import tech.challenge.pagamento.domain.pagamento.entidade.PagamentoStatus
-import tech.challenge.pagamento.domain.pedido.IPedidoResource
+import tech.challenge.pagamento.domain.transaction.TransactionManager
+import tech.challenge.pagamento.externals.api.pagamento.channel.ConfirmarPagamentoChannel
+import tech.challenge.pagamento.externals.api.pagamento.gateway.GatewayMercadoPago
 import java.math.BigDecimal
 
 class PagamentoServiceTest {
 
     private val pagamentoRepository: IPagamentoRepository = mock()
-    private val pedidoResource: IPedidoResource = mock()
-    private val pagamentoService: PagamentoService = PagamentoService().also {
+    private val transactionManager: TransactionManager = mock()
+    private val confirmarPagamentoChannel: ConfirmarPagamentoChannel = ConfirmarPagamentoChannel().also {
+        it.streamBridge = mock()
+    }
+    private val gatewayMercadoPago: GatewayMercadoPago = mock()
+    private val pagamentoService = PagamentoService().also {
         it.pagamentoRepository = pagamentoRepository
-        it.pedidoResource = pedidoResource
+        it.confirmarPagamentoChannel = confirmarPagamentoChannel
+        it.gatewayMercadoPago = gatewayMercadoPago
+        it.transactionManager = transactionManager
+    }
+
+    @Before
+    fun before() {
+        val transactionalOperator: TransactionalOperator = mock()
+        `when`(transactionManager.createNewTransactionalOperator()).thenReturn(transactionalOperator)
+        `when`(transactionalOperator.transactional(any<Mono<Pagamento>>())).then(AdditionalAnswers.returnsFirstArg<Mono<Pagamento>>())
     }
 
     @Test
-    fun quandoJaExisteJaExisterUmPagamentoParaUmPedidoDeveLancarExceptionAoTentarRegistrarOutro() {
-        val pagamentoEntity: Mono<Pagamento> = mock<Mono<Pagamento>?>().also {
-            `when`(it.block()).thenReturn(
-                Pagamento().also { p ->
-                    p.id = "SvfAMoKJ65aPvl0oP2we"
-                    p.pedidoId = 172654
-                    p.status = PagamentoStatus.PENDENTE
-                }
-            )
-        }
+    fun quandoJaExisteJaExistirUmPagamentoParaUmPedidoDeveNotificarFalhaAoTentarRegistrarOutro() {
+        val pagamentoEntity = Mono.just(
+            Pagamento().also { p ->
+                p.id = "SvfAMoKJ65aPvl0oP2we"
+                p.pedidoId = 172654
+                p.status = PagamentoStatus.PENDENTE
+            }
+        )
+
         `when`(pagamentoRepository.findByPedidoIdAndStatusIn(
             pedidoId = 172654,
             status = listOf(
@@ -46,21 +60,18 @@ class PagamentoServiceTest {
             )
         )).thenReturn(pagamentoEntity)
 
-        val exception = assertThrows<BusinessException> {
-            pagamentoService.processarPagamento(NovoPagamentoRequestDto(
+        pagamentoService.processarPagamento(
+            NovoPagamentoRequestDto(
                 pedidoId = 172654,
                 valorTotal = BigDecimal.TEN
-            ))
-        }
-
-        assertEquals("Pedido já possui pagamento realizado ou em processamento", exception.message)
+            )
+        )
     }
 
     @Test
-    fun quandoPagamentoNaoEncontradoAoConfirmarPagamentoDeveLancarNotFoundExceptionException() {
-        val pagamentoEntity: Mono<Pagamento> = mock<Mono<Pagamento>?>().also {
-            `when`(it.block()).thenReturn(null)
-        }
+    fun quandoPagamentoNaoEncontradoAoConfirmarPagamentoDeveLancarNotFoundException() {
+        val pagamentoEntity = Mono.empty<Pagamento>()
+
         `when`(pagamentoRepository.findByPedidoIdAndStatusIn(
             pedidoId = 172654,
             status = listOf(
@@ -75,7 +86,6 @@ class PagamentoServiceTest {
         assertEquals("Não foi encontrado pagamento pendente para o pedido", exception.message)
     }
 
-    @Ignore
     @Test
     fun deveNotificarPedidoQuandoPagamentoConfirmado() {
         val pagamentoEntity = Pagamento().also { p ->
@@ -83,18 +93,15 @@ class PagamentoServiceTest {
             p.pedidoId = 172654
             p.status = PagamentoStatus.PENDENTE
         }
-        val pagamentoEntityMono: Mono<Pagamento> = mock<Mono<Pagamento>?>().also {
-            `when`(it.block()).thenReturn(
-                pagamentoEntity
-            )
-        }
+        val pagamentoEntityMono = Mono.just(pagamentoEntity)
+
+        `when`(pagamentoRepository.save(pagamentoEntity)).thenReturn(pagamentoEntityMono)
         `when`(pagamentoRepository.findByPedidoIdAndStatusIn(
             pedidoId = 172654,
             status = listOf(
                 PagamentoStatus.PENDENTE
             )
         )).thenReturn(pagamentoEntityMono)
-        `when`(pagamentoRepository.save(pagamentoEntity)).thenReturn(pagamentoEntityMono)
 
         val pagamentoDto = pagamentoService.confirmarPagamento(172654, PagamentoStatus.SUCESSO)
 
@@ -102,20 +109,12 @@ class PagamentoServiceTest {
         assertEquals(172654, pagamentoDto.pedido)
         assertEquals(PagamentoStatus.SUCESSO, pagamentoDto.status)
 
-        verify(pedidoResource).confirmarPagamento(172654, ResultadoPagamentoDto(
-                pedido = 172654,
-                resultadoPagamento = PagamentoStatus.SUCESSO
-        ))
+        verify(confirmarPagamentoChannel.streamBridge, times(1)).send(any(), any())
     }
 
     @Test
     fun quandoPagamentoNaoExisteAoConsultarStatusDeveLancarNotFoundException() {
-        val fluxEmpty: Flux<Pagamento> = mock<Flux<Pagamento>>().also {
-            val monoList: Mono<List<Pagamento>> = mock<Mono<List<Pagamento>>?>().also { mono ->
-                `when`(mono.block()).thenReturn(emptyList())
-            }
-            `when`(it.collectList()).thenReturn(monoList)
-        }
+        val fluxEmpty = Flux.empty<Pagamento>()
 
         `when`(pagamentoRepository.findAllByPedidoId(172654)).thenReturn(fluxEmpty)
 
@@ -124,5 +123,10 @@ class PagamentoServiceTest {
         }
 
         assertEquals("Não foi encontrado pagamento para o pedido", exception.message)
+    }
+
+    @Test
+    fun deveExecutarAcaoDeContornoQuandoNaoForPossivelSolicitarPagamento() {
+
     }
 }

@@ -5,7 +5,7 @@ import tech.challenge.pagamento.domain.pagamento.dto.PagamentoDto
 import tech.challenge.pagamento.domain.pagamento.entidade.PagamentoStatus
 
 interface IPagamentoService {
-    fun processarPagamento(novoPagamentoRequestDto: NovoPagamentoRequestDto): PagamentoDto
+    fun processarPagamento(novoPagamentoRequestDto: NovoPagamentoRequestDto)
     fun confirmarPagamento(pedido: Long, status: PagamentoStatus): PagamentoDto
     fun consultarStatusPagamento(pedido: Long): PagamentoDto
 }

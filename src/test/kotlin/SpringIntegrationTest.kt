@@ -6,6 +6,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.ActiveProfiles
 import tech.challenge.pagamento.PagamentoApplication
 import tech.challenge.pagamento.domain.pagamento.IPagamentoRepository
+import tech.challenge.pagamento.domain.transaction.TransactionManager
 
 @CucumberContextConfiguration
 @SpringBootTest(classes = [PagamentoApplication::class])
@@ -15,4 +16,8 @@ class SpringIntegrationTest {
     @MockBean
     @Autowired
     lateinit var pagamentoRepository: IPagamentoRepository
+
+    @MockBean
+    @Autowired
+    lateinit var transactionManager: TransactionManager
 }
