@@ -20,7 +20,7 @@ class SolicitarPagamentoChannel {
     @Bean
     private fun solicitarPagamentoConsumer(): Consumer<NovoPagamentoRequestDto> {
         return Consumer {
-            logger.info("[SERVICO-PAGAMENTO][TOPIC] - Mensagem recebida no topico solicitar-pagamento-topic ${Gson().toJson(it)}")
+            println("[SERVICO-PAGAMENTO][TOPIC] - Mensagem recebida no topico solicitar-pagamento-topic ${Gson().toJson(it)}")
             pagamentoService.processarPagamento(it)
         }
     }

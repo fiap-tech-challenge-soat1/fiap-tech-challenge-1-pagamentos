@@ -19,6 +19,6 @@ class ConfirmarPagamentoChannel: IConfirmarPagamentoChannel {
 
     override fun confirmarPagamento(resultadoPagamentoDto: ResultadoPagamentoDto) {
         streamBridge.send(BINDING_NAME_CONFIRMAR_PAGAMENTO_TOPIC, resultadoPagamentoDto)
-        logger.info("[SERVICO-PAGAMENTO][TOPIC] - Mensagem enviada no topico confirmar-pagamento-topic ${Gson().toJson(resultadoPagamentoDto)}")
+        println("[SERVICO-PAGAMENTO][TOPIC] - Mensagem enviada no topico confirmar-pagamento-topic ${Gson().toJson(resultadoPagamentoDto)}")
     }
 }
