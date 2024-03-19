@@ -125,7 +125,7 @@ class PagamentoIntegrationTest: SpringIntegrationTest() {
     fun o_cliente_chama_o_pagamentos_pedido() {
         resultActions = mockMvc.perform(
             MockMvcRequestBuilders
-                .get("/pedido/172654")
+                .get("/pagamentos/pedido/172654")
         )
     }
 }
