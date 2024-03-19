@@ -1,5 +1,6 @@
 package tech.challenge.pagamento.externals.api.pagamento.channel
 
+import com.google.gson.Gson
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
@@ -19,7 +20,7 @@ class SolicitarPagamentoChannel {
     @Bean
     private fun solicitarPagamentoConsumer(): Consumer<NovoPagamentoRequestDto> {
         return Consumer {
-            logger.info("Message received: ${it.pedidoId}")
+            logger.info("[SERVICO-PAGAMENTO][TOPIC] - Mensagem recebida no topico solicitar-pagamento-topic ${Gson().toJson(it)}")
             pagamentoService.processarPagamento(it)
         }
     }
