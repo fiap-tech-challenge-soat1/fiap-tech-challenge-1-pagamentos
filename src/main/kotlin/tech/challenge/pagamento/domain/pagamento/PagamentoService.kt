@@ -2,10 +2,10 @@ package tech.challenge.pagamento.domain.pagamento
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
 import tech.challenge.pagamento.domain.pagamento.dto.NovoPagamentoRequestDto
 import tech.challenge.pagamento.domain.pagamento.dto.PagamentoDto
 import tech.challenge.pagamento.domain.pagamento.entidade.Pagamento
-import tech.challenge.pagamento.domain.exception.BusinessException
 import tech.challenge.pagamento.domain.exception.NotFoundException
 import tech.challenge.pagamento.domain.pagamento.dto.ResultadoPagamentoDto
 import tech.challenge.pagamento.domain.pagamento.entidade.PagamentoStatus
@@ -37,20 +37,24 @@ class PagamentoService: IPagamentoService {
                 PagamentoStatus.PENDENTE
             )
         ).`as`(transactionOperator::transactional).block()?.run {
-            acaoDeContornoFalhaAoSolicitarPagamento(novoPagamentoRequestDto.pedidoId)
+            acaoDeCompensatoriaFalhaAoSolicitarPagamento(novoPagamentoRequestDto.pedidoId)
             return
         }
 
-        Pagamento.createFrom(novoPagamentoRequestDto).let { novoPagamento ->
-            pagamentoRepository.save(novoPagamento).doOnNext {
-                solicitarPagamentoAoGateway(it)
-            }.map { pagamento ->
-                pagamento.toPagamentoDto()
-            }.doOnNext {
-                println("Novo pagamento ${it.id} criado para o pedido ${it.pedido}")
-            }.doOnError {
-                acaoDeContornoFalhaAoSolicitarPagamento(novoPagamento.pedidoId!!)
-            }.`as`(transactionOperator::transactional).block()!!
+        try {
+            Pagamento.createFrom(novoPagamentoRequestDto).let { novoPagamento ->
+                pagamentoRepository.save(novoPagamento).doOnNext {
+                    solicitarPagamentoAoGateway(it)
+                }.map { pagamento ->
+                    pagamento.toPagamentoDto()
+                }.doOnNext {
+                    println("Novo pagamento ${it.id} criado para o pedido ${it.pedido}")
+                }.doOnError {
+                    acaoDeCompensatoriaFalhaAoSolicitarPagamento(novoPagamento.pedidoId!!)
+                }.`as`(transactionOperator::transactional).block()!!
+            }
+        } catch (e: Exception) {
+            println("Falha ao solicitar pagamento")
         }
     }
 
@@ -61,7 +65,7 @@ class PagamentoService: IPagamentoService {
         )
     }
 
-    private fun acaoDeContornoFalhaAoSolicitarPagamento(pedidoId: Long) {
+    private fun acaoDeCompensatoriaFalhaAoSolicitarPagamento(pedidoId: Long) {
         confirmarPagamentoChannel.confirmarPagamento(
             ResultadoPagamentoDto(
                 pedido = pedidoId,

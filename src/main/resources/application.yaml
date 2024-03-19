@@ -15,6 +15,10 @@ spring:
           group: pagamentos-subscription
           destination: solicitar-pagamento-topic
     gcp:
+      pubsub:
+        subscriber:
+          max-ack-extension-period: 60
+          min-duration-per-ack-extension: 60
       project-id: fiap-tech-challenge-403000
       firestore:
         enabled: true

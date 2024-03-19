@@ -1,5 +1,6 @@
 package tech.challenge.pagamento.externals.api.pagamento
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -9,6 +10,7 @@ import tech.challenge.pagamento.domain.pagamento.IPagamentoService
 import tech.challenge.pagamento.domain.pagamento.dto.PagamentoDto
 import tech.challenge.pagamento.domain.pagamento.entidade.PagamentoStatus
 
+@Tag(name = "Webhook", description = "Weebhook para confirmação de pagamento")
 @RestController
 class WebhookController {
 
