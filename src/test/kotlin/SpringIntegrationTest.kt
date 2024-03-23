@@ -5,7 +5,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.ActiveProfiles
 import tech.challenge.pagamento.PagamentoApplication
-import tech.challenge.pagamento.domain.pagamento.IForcarErroGatewayRepository
 import tech.challenge.pagamento.domain.pagamento.IPagamentoRepository
 import tech.challenge.pagamento.domain.transaction.TransactionManager
 
@@ -21,8 +20,4 @@ class SpringIntegrationTest {
     @MockBean
     @Autowired
     lateinit var transactionManager: TransactionManager
-
-    @MockBean
-    @Autowired
-    lateinit var forcarErrorGatewayRepository: IForcarErroGatewayRepository
 }
